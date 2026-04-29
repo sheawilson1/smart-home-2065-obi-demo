@@ -1,0 +1,22 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --obi-primary: #E8B87A;
+  --obi-glow: #F5D4A1;
+  --obi-warmth: #3A2818;
+  color-scheme: dark;
+}
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  background: #050402;
+  color: #f5f5f5;
+  font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'SF Pro Display', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
