@@ -1,4 +1,5 @@
 import type { UserId } from '../state/user';
+import { publicPath } from '../assets/publicPath';
 
 export type BeatEvent =
   | { type: 'speak'; text: string; audio?: string }
@@ -102,7 +103,7 @@ export const manualDemoSteps: Record<UserId, DemoStep[]> = {
         {
           type: 'speak',
           text: 'Good morning, Amara. Lagos is carrying some heat today, but your herbs are holding up nicely out there.',
-          audio: '/audio/voices/obi/amara-01-greeting.wav',
+          audio: publicPath('/audio/voices/obi/amara-01-greeting.wav'),
         },
       ],
     },
@@ -115,7 +116,7 @@ export const manualDemoSteps: Record<UserId, DemoStep[]> = {
         {
           type: 'speak',
           text: "The basil's full and ready for picking, rosemary's doing beautifully, and the mint is coming along well, just give it a few more days.",
-          audio: '/audio/voices/obi/amara-02-garden.wav',
+          audio: publicPath('/audio/voices/obi/amara-02-garden.wav'),
         },
       ],
     },
@@ -126,7 +127,7 @@ export const manualDemoSteps: Record<UserId, DemoStep[]> = {
         {
           type: 'speak',
           text: "I've nudged the sprinklers up a little, before the afternoon gets too fierce.",
-          audio: '/audio/voices/obi/amara-03-sprinklers.wav',
+          audio: publicPath('/audio/voices/obi/amara-03-sprinklers.wav'),
         },
       ],
     },
@@ -137,7 +138,7 @@ export const manualDemoSteps: Record<UserId, DemoStep[]> = {
         {
           type: 'speak',
           text: "Your tea is ready. And while you're at it, don't let those tablets sit there forgotten.",
-          audio: '/audio/voices/obi/amara-04-medication.wav',
+          audio: publicPath('/audio/voices/obi/amara-04-medication.wav'),
         },
       ],
     },
@@ -151,7 +152,7 @@ export const manualDemoSteps: Record<UserId, DemoStep[]> = {
         {
           type: 'speak',
           text: "Yo Kofi. That spatial render's still going, about twelve minutes left.",
-          audio: '/audio/voices/obi/kofi-01-greeting.wav',
+          audio: publicPath('/audio/voices/obi/kofi-01-greeting.wav'),
         },
       ],
     },
@@ -162,7 +163,7 @@ export const manualDemoSteps: Record<UserId, DemoStep[]> = {
         {
           type: 'speak',
           text: "Studio mode's on. No one's getting through.",
-          audio: '/audio/voices/obi/kofi-02-studio.wav',
+          audio: publicPath('/audio/voices/obi/kofi-02-studio.wav'),
         },
       ],
     },
@@ -174,7 +175,7 @@ export const manualDemoSteps: Record<UserId, DemoStep[]> = {
         {
           type: 'speak',
           text: "Granny wants to hear the new piece when it's done. Said she'll wait for the finished version, so no rush.",
-          audio: '/audio/voices/obi/kofi-03-amara.wav',
+          audio: publicPath('/audio/voices/obi/kofi-03-amara.wav'),
         },
       ],
     },
@@ -185,7 +186,7 @@ export const manualDemoSteps: Record<UserId, DemoStep[]> = {
         {
           type: 'speak',
           text: "You've been in here three hours. Go touch grass.",
-          audio: '/audio/voices/obi/kofi-04-grass.wav',
+          audio: publicPath('/audio/voices/obi/kofi-04-grass.wav'),
         },
       ],
     },
@@ -203,7 +204,7 @@ export const avaVoiceSample: BeatSequence = {
       event: {
         type: 'speak',
         text: 'Ava Neural voice sample.',
-        audio: '/audio/voices/obi/ava-neural.webm',
+        audio: publicPath('/audio/voices/obi/ava-neural.webm'),
       },
     },
   ],

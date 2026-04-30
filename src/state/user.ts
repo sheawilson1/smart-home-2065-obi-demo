@@ -1,3 +1,5 @@
+import { publicPath } from '../assets/publicPath';
+
 export type UserId = 'amara' | 'kofi';
 
 export type Palette = {
@@ -39,9 +41,9 @@ export const USERS: Record<UserId, User> = {
     palette: { primary: '#E8B87A', glow: '#F5D4A1', warmth: '#3A2818' },
     voice: { rate: 0.82, pitch: 0.9, lang: 'en-GB', preRecordedFolder: 'amara' },
     chimes: {
-      wake: '/audio/chimes/amara/wake.mp3',
-      confirm: '/audio/chimes/amara/confirm.mp3',
-      notify: '/audio/chimes/amara/notify.mp3',
+      wake: publicPath('/audio/chimes/amara/wake.mp3'),
+      confirm: publicPath('/audio/chimes/amara/confirm.mp3'),
+      notify: publicPath('/audio/chimes/amara/notify.mp3'),
     },
     density: 'comfortable',
     copyRegister: 'warm-formal',
@@ -55,9 +57,9 @@ export const USERS: Record<UserId, User> = {
     palette: { primary: '#9B7DD4', glow: '#C4AEED', warmth: '#1A1228' },
     voice: { rate: 0.92, pitch: 1.02, lang: 'en-GB', preRecordedFolder: 'kofi' },
     chimes: {
-      wake: '/audio/chimes/kofi/wake.mp3',
-      confirm: '/audio/chimes/kofi/confirm.mp3',
-      notify: '/audio/chimes/kofi/notify.mp3',
+      wake: publicPath('/audio/chimes/kofi/wake.mp3'),
+      confirm: publicPath('/audio/chimes/kofi/confirm.mp3'),
+      notify: publicPath('/audio/chimes/kofi/notify.mp3'),
     },
     density: 'compact',
     copyRegister: 'creative',

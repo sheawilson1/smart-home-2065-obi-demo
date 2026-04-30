@@ -2,8 +2,9 @@ import { useRef, useState, type PointerEvent, type WheelEvent } from 'react';
 import { motion } from 'framer-motion';
 import { audio } from '../audio/AudioDirector';
 import { useObiStore } from '../state/store';
+import { publicPath } from '../assets/publicPath';
 
-export const GARDEN_PANORAMA = '/images/herb-garden-360-4k.png';
+export const GARDEN_PANORAMA = publicPath('/images/herb-garden-360-4k.png');
 
 function clamp(value: number, min: number, max: number) {
   return Math.max(min, Math.min(max, value));

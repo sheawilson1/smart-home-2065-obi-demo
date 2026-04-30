@@ -9,10 +9,11 @@ import { PresenceGlow } from './PresenceGlow';
 import { Card } from './Card';
 import { GARDEN_PANORAMA, Portal } from './Portal';
 import { GestureLayer } from './GestureLayer';
+import { publicPath } from '../assets/publicPath';
 
 const BG_IMAGE: Record<BackgroundVariant, string> = {
-  clear:   '/images/surface.png',
-  objects: '/images/surface-objects.png',
+  clear:   publicPath('/images/surface.png'),
+  objects: publicPath('/images/surface-objects.png'),
 };
 
 // Cards for Amara: 3-column centred layout
