@@ -2,9 +2,7 @@ import { useRef, useState, type PointerEvent, type WheelEvent } from 'react';
 import { motion } from 'framer-motion';
 import { audio } from '../audio/AudioDirector';
 import { useObiStore } from '../state/store';
-import { publicPath } from '../assets/publicPath';
-
-export const GARDEN_PANORAMA = publicPath('/images/herb-garden-360-4k.png');
+import { GARDEN_PANORAMA, KOFI_SPATIAL_MIX_ENVIRONMENT } from '../assets/imagePaths';
 
 function clamp(value: number, min: number, max: number) {
   return Math.max(min, Math.min(max, value));
@@ -17,9 +15,12 @@ function normalisePan(value: number) {
 export function Portal() {
   const dragRef = useRef<{ x: number; y: number; pan: number; tilt: number } | null>(null);
   const emit = useObiStore((s) => s.emit);
+  const activeUser = useObiStore((s) => s.activeUser);
+  const isKofi = activeUser.id === 'kofi';
+  const portalImage = isKofi ? KOFI_SPATIAL_MIX_ENVIRONMENT : GARDEN_PANORAMA;
   const [pan, setPan] = useState(0);
-  const [tilt, setTilt] = useState(58);
-  const [zoom, setZoom] = useState(230);
+  const [tilt, setTilt] = useState(isKofi ? 50 : 58);
+  const [zoom, setZoom] = useState(isKofi ? 150 : 230);
   const [dragging, setDragging] = useState(false);
   const panMarker = Math.round((normalisePan(pan) / 1000) * 100);
 
@@ -27,7 +28,6 @@ export function Portal() {
     event.currentTarget.setPointerCapture(event.pointerId);
     dragRef.current = { x: event.clientX, y: event.clientY, pan, tilt };
     setDragging(true);
-    audio.playFx('press');
   }
 
   function handlePointerMove(event: PointerEvent<HTMLDivElement>) {
@@ -35,56 +35,61 @@ export function Portal() {
     if (!drag) return;
     const dx = event.clientX - drag.x;
     const dy = event.clientY - drag.y;
-    setPan(drag.pan + dx * 1.15);
-    setTilt(clamp(drag.tilt + dy * 0.045, 40, 68));
+    setPan(drag.pan + dx * (isKofi ? 1.35 : 1.15));
+    setTilt(clamp(drag.tilt + dy * 0.045, isKofi ? 36 : 40, isKofi ? 64 : 68));
   }
 
   function handlePointerUp(event: PointerEvent<HTMLDivElement>) {
     event.currentTarget.releasePointerCapture(event.pointerId);
     dragRef.current = null;
     setDragging(false);
-    audio.playFx('select');
   }
 
   function handleWheel(event: WheelEvent<HTMLDivElement>) {
-    setZoom((current) => clamp(current + event.deltaY * 0.045, 168, 260));
+    setZoom((current) => clamp(current + event.deltaY * 0.045, isKofi ? 118 : 168, isKofi ? 210 : 260));
+  }
+
+  function closePortal() {
+    audio.playFx('select');
+    emit({ type: 'portal', open: false });
   }
 
   return (
-    <motion.div
-      key="portal"
-      initial={{ opacity: 0, scale: 0.97 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.98 }}
-      transition={{ duration: 1.1, ease: [0.2, 0.8, 0.2, 1] }}
-      className="absolute left-1/2 top-1/2 z-30 overflow-hidden"
-      style={{
-        width: 'min(760px, 46vw)',
-        height: 'min(500px, 44vh)',
-        maxWidth: 'calc(100vw - 48px)',
-        maxHeight: 'calc(100vh - 176px)',
-        borderRadius: 34,
-        boxShadow:
-          '0 56px 90px -60px rgba(0,0,0,0.9), 0 0 38px rgba(245,212,161,0.34), 0 0 120px -20px var(--obi-glow), 0 0 0 1px rgba(255,235,198,0.32), inset 0 0 1px rgba(255,255,255,0.40)',
-        translate: '-50% -50%',
-      }}
-    >
+    <>
+      <button
+        aria-label="Close portal"
+        className="fixed inset-0 z-20 cursor-default bg-transparent"
+        type="button"
+        onClick={closePortal}
+      />
+      <motion.div
+        key="portal"
+        initial={{ opacity: 0, scale: 0.97 }}
+        animate={{ opacity: 1, scale: 1 }}
+        exit={{ opacity: 0, scale: 0.98 }}
+        transition={{ duration: 1.1, ease: [0.2, 0.8, 0.2, 1] }}
+        className="absolute z-30 overflow-hidden border border-[#f4dec0]/10 bg-[#211b14]/10 backdrop-blur-xl"
+        style={{
+          left: '54%',
+          top: '51%',
+          width: 1060,
+          height: 670,
+          borderRadius: 26,
+          boxShadow:
+            '0 24px 68px -60px rgba(0,0,0,0.84), inset 0 0 0 1px rgba(255,244,224,0.035), inset 0 1px 0 rgba(255,244,224,0.075)',
+          translate: '-50% -50%',
+        }}
+      >
       <motion.div
         className="pointer-events-none absolute inset-0 z-10"
-        animate={{ opacity: [0.55, 0.9, 0.55] }}
+        animate={{ opacity: [0.02, 0.055, 0.02] }}
         transition={{ duration: 5.5, repeat: Infinity, ease: 'easeInOut' }}
         style={{
-          borderRadius: 34,
+          borderRadius: 26,
           boxShadow:
-            'inset 0 0 0 1px rgba(255,226,178,0.42), inset 0 0 42px rgba(245,212,161,0.22), 0 0 54px rgba(245,212,161,0.52)',
-        }}
-      />
-      <div
-        className="pointer-events-none absolute -inset-10 -z-10"
-        style={{
+            'inset 0 0 0 1px rgba(255,238,205,0.055)',
           background:
-            'radial-gradient(ellipse at 50% 50%, rgba(245,212,161,0.34), rgba(245,212,161,0.12) 38%, transparent 72%)',
-          filter: 'blur(16px)',
+            'linear-gradient(145deg, rgba(255,244,224,0.16), transparent 58%)',
         }}
       />
       <motion.div
@@ -95,7 +100,7 @@ export function Portal() {
         onPointerCancel={handlePointerUp}
         onWheel={handleWheel}
         style={{
-          backgroundImage: `url(${GARDEN_PANORAMA})`,
+          backgroundImage: `url(${portalImage})`,
           backgroundRepeat: 'repeat-x',
           backgroundSize: `${zoom}% auto`,
           backgroundPosition: `${pan}px ${tilt}%`,
@@ -116,7 +121,7 @@ export function Portal() {
           ease: 'easeInOut',
         }}
         style={{
-          backgroundImage: `url(${GARDEN_PANORAMA})`,
+          backgroundImage: `url(${portalImage})`,
           backgroundRepeat: 'repeat-x',
           backgroundSize: `${zoom + 10}% auto`,
           backgroundPosition: `${pan}px ${tilt}%`,
@@ -149,22 +154,43 @@ export function Portal() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.35, duration: 0.8 }}
       >
-        <div className="text-[9px] tracking-[0.38em] text-[#ffe8bf]/78">LAGOS · LIVE GARDEN</div>
-        <div className="mt-2 text-[clamp(22px,3vw,34px)] font-light text-white/95">Amara's Herb Garden</div>
+        <div className="text-[9px] tracking-[0.38em] text-[#ffe8bf]/78">
+          {isKofi ? 'VERSION 07 · SPATIAL MIX' : 'LAGOS · LIVE GARDEN'}
+        </div>
+        <div className="mt-2 text-[34px] font-light text-white/95">
+          {isKofi ? 'Lucid Mirage' : "Amara's Herb Garden"}
+        </div>
       </motion.div>
 
+      <button
+        aria-label="Close"
+        className="absolute right-6 top-6 z-20 grid h-10 w-10 place-items-center rounded-full border border-[#f4dec0]/10 bg-[#fff7e8]/[0.035] text-[#fff1d7]/70 shadow-none backdrop-blur-md transition hover:border-[#f4dec0]/18 hover:bg-[#fff7e8]/[0.06] hover:text-[#fff1d7]/86"
+        type="button"
+        onClick={(event) => {
+          event.stopPropagation();
+          closePortal();
+        }}
+        style={{ boxShadow: 'inset 0 0 0 1px rgba(255,238,205,0.055)' }}
+      >
+        <svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden="true">
+          <path d="M6.5 6.5l11 11M17.5 6.5l-11 11" fill="none" stroke="currentColor" strokeWidth="1.35" strokeLinecap="round" />
+        </svg>
+      </button>
+
       <motion.div
-        className="absolute bottom-6 left-8 right-8 flex items-end justify-between gap-5"
+        className={`absolute bottom-6 left-8 right-8 flex items-end gap-5 ${isKofi ? 'justify-center' : 'justify-between'}`}
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.5, duration: 0.9 }}
       >
-        <div className="pointer-events-none">
-          <div className="text-[9px] tracking-[0.32em] text-[#ffe8bf]/55">PAN {panMarker} · TILT {Math.round(tilt)}</div>
-          <div className="mt-2 max-w-[34ch] text-sm leading-relaxed text-white/70">
-            Basil is ready. Rosemary is beautiful. Mint needs a few more days.
+        {!isKofi && (
+          <div className="pointer-events-none">
+            <div className="text-[9px] tracking-[0.32em] text-[#ffe8bf]/55">PAN {panMarker} · TILT {Math.round(tilt)}</div>
+            <div className="mt-2 max-w-[34ch] text-sm leading-relaxed text-white/70">
+              Basil is ready. Rosemary is beautiful. Mint needs a few more days.
+            </div>
           </div>
-        </div>
+        )}
         <div className="pointer-events-none flex items-center gap-2">
           {[0, 1, 2, 3, 4].map((tick) => (
             <div
@@ -178,18 +204,8 @@ export function Portal() {
             />
           ))}
         </div>
-        <button
-          className="shrink-0 border border-[#ffe8bf]/30 bg-[#2d2418]/35 px-4 py-2 text-[9px] uppercase tracking-[0.22em] text-[#ffe8bf]/85 shadow-2xl backdrop-blur-md"
-          style={{ borderRadius: 999 }}
-          onClick={(event) => {
-            event.stopPropagation();
-            audio.playFx('select');
-            emit({ type: 'portal', open: false });
-          }}
-        >
-          Close
-        </button>
       </motion.div>
-    </motion.div>
+      </motion.div>
+    </>
   );
 }

@@ -346,22 +346,24 @@ export function GestureLayer() {
 
   return (
     <>
-      <video
-        ref={videoRef}
-        className="pointer-events-none fixed bottom-4 right-4 z-50 h-24 w-32 border border-white/10 object-cover opacity-45 mix-blend-screen"
-        style={{
-          borderRadius: 8,
-          transform: facingMode === 'user' ? 'scaleX(-1)' : undefined,
-        }}
-        muted
-        playsInline
-      />
+      {enabled && (
+        <video
+          ref={videoRef}
+          className="pointer-events-none fixed bottom-4 right-4 z-50 h-24 w-32 object-cover opacity-35 mix-blend-screen"
+          style={{
+            borderRadius: 8,
+            transform: facingMode === 'user' ? 'scaleX(-1)' : undefined,
+          }}
+          muted
+          playsInline
+        />
+      )}
 
       <HandShadow points={points} gesture={gesture} />
 
       <motion.button
         type="button"
-        className="fixed right-4 top-4 z-50 border border-white/10 bg-black/30 px-3 py-2 text-[9px] uppercase tracking-[0.28em] text-white/55 backdrop-blur-xl transition hover:border-white/20 hover:text-white"
+        className="fixed right-4 top-4 z-50 border border-white/5 bg-black/18 px-3 py-2 text-[9px] uppercase tracking-[0.28em] text-white/42 backdrop-blur-md transition hover:border-white/12 hover:bg-black/26 hover:text-white/70"
         style={{ borderRadius: 8 }}
         onClick={toggleTracking}
         onPointerEnter={() => emit({ type: 'fx', name: 'hover' })}
@@ -372,7 +374,7 @@ export function GestureLayer() {
 
       <motion.button
         type="button"
-        className="fixed right-4 top-16 z-50 border border-white/10 bg-black/30 px-3 py-2 text-[9px] uppercase tracking-[0.28em] text-white/55 backdrop-blur-xl transition hover:border-white/20 hover:text-white"
+        className="fixed right-4 top-16 z-50 border border-white/5 bg-black/18 px-3 py-2 text-[9px] uppercase tracking-[0.28em] text-white/42 backdrop-blur-md transition hover:border-white/12 hover:bg-black/26 hover:text-white/70"
         style={{ borderRadius: 8 }}
         onClick={() => setFacingMode((current) => current === 'user' ? 'environment' : 'user')}
         onPointerEnter={() => emit({ type: 'fx', name: 'hover' })}
@@ -385,7 +387,7 @@ export function GestureLayer() {
         {enabled && (
           <motion.div
             key="gesture-status"
-            className="fixed right-4 top-28 z-50 min-w-44 border border-white/10 bg-black/35 px-3 py-2 text-right text-[9px] uppercase tracking-[0.24em] text-white/45 backdrop-blur-xl"
+            className="fixed right-4 top-28 z-50 min-w-44 border border-white/5 bg-black/22 px-3 py-2 text-right text-[9px] uppercase tracking-[0.24em] text-white/36 backdrop-blur-md"
             style={{ borderRadius: 8 }}
             initial={{ opacity: 0, y: -6 }}
             animate={{ opacity: 1, y: 0 }}

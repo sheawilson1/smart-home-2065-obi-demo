@@ -33,8 +33,8 @@ export function PresenceGlow() {
         style={{
           background:
             'radial-gradient(circle, var(--obi-glow) 0%, transparent 60%)',
-          opacity: 0.25,
-          filter: 'blur(24px)',
+          opacity: 0.06,
+          filter: 'blur(42px)',
         }}
       />
     </motion.div>

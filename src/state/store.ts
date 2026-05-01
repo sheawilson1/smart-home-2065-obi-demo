@@ -64,12 +64,6 @@ export const useObiStore = create<ObiState>((set) => ({
         set({ portalOpen: e.open });
         break;
       case 'speak': {
-        set({ currentSpeech: e.text });
-        const duration = Math.max(2500, e.text.length * 72);
-        window.setTimeout(() => {
-          const cur = useObiStore.getState().currentSpeech;
-          if (cur === e.text) set({ currentSpeech: null });
-        }, duration);
         break;
       }
     }

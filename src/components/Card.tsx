@@ -35,18 +35,18 @@ export function Card({ id, children, className = '', breathSeed = 0, onClick }: 
       onPointerDown={() => audio.playFx('press')}
       style={{
         background:
-          'linear-gradient(145deg, rgba(255,255,255,0.12), rgba(255,255,255,0.035))',
+          'linear-gradient(145deg, rgba(255,244,224,0.075), rgba(255,244,224,0.018))',
         boxShadow:
-          '0 0 78px -30px var(--obi-glow), inset 0 0 1px rgba(255,255,255,0.28)',
+          '0 22px 64px -58px rgba(0,0,0,0.82), inset 0 0 0 1px rgba(255,238,205,0.10)',
         borderRadius: 26,
-        textShadow: '0 1px 16px rgba(0,0,0,0.32)',
+        textShadow: '0 1px 12px rgba(0,0,0,0.26)',
       }}
     >
       <motion.div
         className="absolute inset-0 pointer-events-none"
-        animate={{ opacity: [0.02, 0.16, 0.02] }}
+        animate={{ opacity: [0.015, 0.045, 0.015] }}
         transition={{
-          duration: 5 + (breathSeed % 1.5),
+          duration: 7 + (breathSeed % 1.5),
           repeat: Infinity,
           ease: 'easeInOut',
           delay: breathSeed,
@@ -54,7 +54,7 @@ export function Card({ id, children, className = '', breathSeed = 0, onClick }: 
         style={{
           borderRadius: 26,
           background:
-            'radial-gradient(ellipse at center, var(--obi-glow) 0%, transparent 70%)',
+            'linear-gradient(145deg, rgba(255,244,224,0.16), transparent 58%)',
         }}
       />
       <div className="relative z-10">{children}</div>

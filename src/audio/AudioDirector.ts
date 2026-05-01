@@ -2,6 +2,7 @@ import { Howl } from 'howler';
 import { useObiStore } from '../state/store';
 import { synth } from './SynthAudio';
 import type { VoiceProfile } from '../state/user';
+import { publicPath } from '../assets/publicPath';
 
 type Bus = 'ambient' | 'ui' | 'voice' | 'portal';
 
@@ -9,7 +10,7 @@ const BUS_BASE_VOLUMES: Record<Bus, number> = {
   ambient: 0.22,
   ui: 0.42,
   voice: 1.0,
-  portal: 0.18,
+  portal: 0.3,
 };
 
 type Entry = { howl: Howl; bus: Bus };
@@ -25,6 +26,8 @@ const NATURAL_VOICE_HINTS = [
   'microsoft',
 ];
 
+const KOFI_SPATIAL_MIX_TRACK = publicPath('/audio/kofi/lucid-mirage.mp3');
+
 export class AudioDirector {
   private sounds = new Map<string, Entry>();
   private unsubscribe: (() => void) | null = null;
@@ -35,13 +38,19 @@ export class AudioDirector {
       if (e.type === 'fx')    this.handleFx(e.name);
       if (e.type === 'sound') this.playFile(e.src, e.bus ?? 'ui');
       if (e.type === 'portal') {
-        this.handleFx(e.open ? 'portal-open' : 'portal-close');
-        if (e.open) synth.startGardenAmbience();
-        else synth.stopGardenAmbience();
+        const isKofi = useObiStore.getState().activeUser.id === 'kofi';
+        if (isKofi) {
+          if (e.open) this.playFile(KOFI_SPATIAL_MIX_TRACK, 'portal');
+          else this.stop(KOFI_SPATIAL_MIX_TRACK);
+        } else {
+          this.handleFx(e.open ? 'portal-open' : 'portal-close');
+          if (e.open) synth.startGardenAmbience();
+          else synth.stopGardenAmbience();
+        }
       }
       if (e.type === 'speak') {
         const { voice } = useObiStore.getState().activeUser;
-        if (e.audio) this.playVoiceClip(e.audio, e.text, voice);
+        if (e.audio) this.playVoiceClip(e.audio);
         else         this.speakWebSpeech(e.text, voice);
       }
     });
@@ -135,7 +144,7 @@ export class AudioDirector {
     return e;
   }
 
-  private playVoiceClip(src: string, fallbackText: string, voice?: VoiceProfile) {
+  private playVoiceClip(src: string) {
     window.speechSynthesis?.cancel();
     this.sounds.forEach((entry) => {
       if (entry.bus === 'voice') entry.howl.stop();
@@ -145,19 +154,12 @@ export class AudioDirector {
     previous?.howl.stop();
     previous?.howl.unload();
 
-    let usedFallback = false;
-    const fallback = () => {
-      if (usedFallback) return;
-      usedFallback = true;
-      this.speakWebSpeech(fallbackText, voice);
-    };
-
     const howl = new Howl({
       src: [src],
       html5: true,
       volume: BUS_BASE_VOLUMES.voice,
-      onloaderror: fallback,
-      onplayerror: fallback,
+      onloaderror: () => this.unduck(['ambient', 'portal'], 300),
+      onplayerror: () => this.unduck(['ambient', 'portal'], 300),
     });
 
     this.sounds.set(src, { howl, bus: 'voice' });
@@ -168,7 +170,7 @@ export class AudioDirector {
 
   private playFile(src: string, bus: Bus) {
     const e = this.getOrLoad(src, bus);
-    const looping = bus === 'ambient' || bus === 'portal';
+    const looping = (bus === 'ambient' || bus === 'portal') && src !== KOFI_SPATIAL_MIX_TRACK;
     e.howl.loop(looping);
     e.howl.volume(BUS_BASE_VOLUMES[bus]);
     const id = e.howl.play();
