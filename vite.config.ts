@@ -3,7 +3,7 @@ import react from '@vitejs/plugin-react'
 
 // https://vite.dev/config/
 export default defineConfig({
-  base: '/smart-home-2065-obi-demo/',
+  base: process.env.VERCEL ? '/' : '/smart-home-2065-obi-demo/',
   plugins: [react()],
   server: {
     host: '127.0.0.1',
