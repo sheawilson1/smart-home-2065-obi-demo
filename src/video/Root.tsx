@@ -6,7 +6,7 @@ export const RemotionRoot = () => {
     <Composition
       id="ObiLaunchDemo"
       component={ObiLaunchDemo}
-      durationInFrames={1350}
+      durationInFrames={960}
       fps={30}
       width={1920}
       height={1080}
