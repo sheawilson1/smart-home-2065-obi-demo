@@ -8,3 +8,7 @@ export const V3_SURFACE_CLOSED = publicPath('/images/v3/stone-worktop-notebook-c
 export const V3_SURFACE_OPEN = publicPath('/images/v3/stone-worktop-notebook-open.png');
 export const KOFI_LUCID_MIRAGE_COVER = publicPath('/images/kofi/lucid-mirage-cover.png');
 export const KOFI_SPATIAL_MIX_ENVIRONMENT = publicPath('/images/kofi/spatial-mix-environment.png');
+export const KOFI_AMARA_PROFILE = publicPath('/images/kofi/people/avatars/amara.png');
+export const KOFI_PRIYA_PROFILE = publicPath('/images/kofi/people/avatars/priya.png');
+export const KOFI_LENA_PROFILE = publicPath('/images/kofi/people/avatars/lena.png');
+export const KOFI_DAVID_PROFILE = publicPath('/images/kofi/people/avatars/david.png');

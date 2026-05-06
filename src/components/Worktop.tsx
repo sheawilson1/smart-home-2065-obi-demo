@@ -1,4 +1,4 @@
-import { useEffect, useCallback, useState } from 'react';
+import { useEffect, useCallback, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import { AnimatePresence, LayoutGroup, motion } from 'framer-motion';
 import { useObiStore, type TimeOfDay, type BackgroundVariant } from '../state/store';
@@ -10,9 +10,14 @@ import { PresenceGlow } from './PresenceGlow';
 import { Card } from './Card';
 import { Portal } from './Portal';
 import { GestureLayer } from './GestureLayer';
+import { publicPath } from '../assets/publicPath';
 import {
   GARDEN_PANORAMA,
+  KOFI_AMARA_PROFILE,
+  KOFI_DAVID_PROFILE,
+  KOFI_LENA_PROFILE,
   KOFI_LUCID_MIRAGE_COVER,
+  KOFI_PRIYA_PROFILE,
   KOFI_SPATIAL_MIX_ENVIRONMENT,
   V3_BASIL_V2_CROP,
   V3_SURFACE_CLOSED,
@@ -26,6 +31,7 @@ const BG_IMAGE: Record<BackgroundVariant, string> = {
 
 const STAGE_WIDTH = 1536;
 const STAGE_HEIGHT = 1024;
+const AMARA_FEEDBACK_AUDIO = publicPath('/audio/voices/obi/kofi-03-amara.wav');
 
 const agendaItems = [
   { time: '09:00', title: 'Team stand-up', group: 'Work' },
@@ -33,13 +39,6 @@ const agendaItems = [
   { time: '14:00', title: 'Pilates', group: 'Wellness' },
   { time: '16:30', title: 'Grocery pickup', group: 'Personal' },
   { time: '19:00', title: 'Family dinner', group: 'Home' },
-];
-
-const kofiSessionItems = [
-  { time: '09:30', title: 'Reference Listening' },
-  { time: '12:00', title: 'Spatial Layering' },
-  { time: '16:00', title: 'Mix Review' },
-  { time: '20:00', title: 'Generative Render' },
 ];
 
 function getStageScale() {
@@ -214,10 +213,113 @@ function GardenPreviewCard({ onOpenGarden }: { onOpenGarden: () => void }) {
   );
 }
 
+const kofiShareItems = [
+  { name: 'Granny', image: KOFI_AMARA_PROFILE, canView: true },
+  { name: 'Mum', image: KOFI_PRIYA_PROFILE, canView: true },
+  { name: 'Lena', image: KOFI_LENA_PROFILE, canView: true },
+  { name: 'Dad', image: KOFI_DAVID_PROFILE, canView: false },
+];
+
+const kofiFeedbackItems = [
+  { name: 'Granny', time: '2m ago', image: KOFI_AMARA_PROFILE, type: 'audio' as const },
+  {
+    name: 'Mum',
+    time: '15m ago',
+    image: KOFI_PRIYA_PROFILE,
+    type: 'text' as const,
+    message: 'This one feels different from your last piece - in a good way.',
+  },
+  {
+    name: 'Lena',
+    time: '1h ago',
+    image: KOFI_LENA_PROFILE,
+    type: 'text' as const,
+    message: 'It sounds like space magic.',
+  },
+];
+
+function PersonAvatar({ src, name, className = 'h-[56px] w-[56px]' }: { src: string; name: string; className?: string }) {
+  return (
+    <img
+      src={src}
+      alt={name}
+      className={`${className} shrink-0 rounded-full object-cover shadow-[0_8px_18px_rgba(0,0,0,0.28)]`}
+    />
+  );
+}
+
+function TogglePill({ enabled }: { enabled: boolean }) {
+  return (
+    <div
+      className={`relative h-[32px] w-[56px] shrink-0 rounded-full backdrop-blur-md transition ${
+        enabled
+          ? 'bg-[#9B7DD4]/[0.72]'
+          : 'bg-[#fff7e8]/[0.105]'
+      }`}
+      aria-hidden="true"
+      style={{
+        boxShadow: enabled
+          ? 'inset 0 0 0 1px rgba(196,174,237,0.16), inset 0 1px 10px rgba(255,255,255,0.12), 0 0 16px rgba(155,125,212,0.13)'
+          : 'inset 0 0 0 1px rgba(255,238,205,0.075), inset 0 1px 12px rgba(255,255,255,0.07), 0 0 10px rgba(255,238,205,0.035)',
+      }}
+    >
+      <div
+        className={`absolute top-1/2 h-[22px] w-[22px] -translate-y-1/2 rounded-full transition ${
+          enabled ? 'right-[5px] bg-[#fff8ea]' : 'left-[5px] bg-[#fff8ea]'
+        }`}
+        style={{
+          boxShadow: enabled
+            ? '0 3px 12px rgba(0,0,0,0.22)'
+            : '0 3px 10px rgba(0,0,0,0.16)',
+        }}
+      />
+    </div>
+  );
+}
+
+function SharedWithCard() {
+  const [shareItems, setShareItems] = useState(kofiShareItems);
+
+  const toggleShare = (name: string) => {
+    setShareItems((items) =>
+      items.map((item) => item.name === name ? { ...item, canView: !item.canView } : item),
+    );
+  };
+
+  return (
+    <GlassCard id="kofi-sharing" className="w-full p-[28px]">
+      <div className="font-serif text-[30px] leading-none text-[#fff1d7]">Shared With</div>
+      <div className="mt-[20px] h-px w-full bg-[#f4dec0]/14" />
+      <div className="grid">
+        {shareItems.map((person, index) => (
+          <button
+            key={person.name}
+            className={`group flex w-full appearance-none items-center gap-[15px] bg-transparent py-[14px] text-left transition ${
+              index === shareItems.length - 1 ? '' : 'border-b border-[#f4dec0]/10'
+            }`}
+            type="button"
+            aria-pressed={person.canView}
+            onClick={() => toggleShare(person.name)}
+          >
+            <PersonAvatar src={person.image} name={person.name} />
+            <div className={`min-w-0 flex-1 transition group-hover:text-[#fff8ea] ${person.canView ? 'text-[#fff4df]' : 'text-[#fff4df]/70'}`}>
+              <div className="font-serif text-[22px] leading-tight">{person.name}</div>
+              <div className={`mt-[2px] text-[16px] leading-tight ${person.canView ? 'text-[#fff4df]/72' : 'text-[#fff4df]/62'}`}>
+                {person.canView ? 'Can view' : 'Hidden'}
+              </div>
+            </div>
+            <TogglePill enabled={person.canView} />
+          </button>
+        ))}
+      </div>
+    </GlassCard>
+  );
+}
+
 function KofiCompositionCard() {
   return (
     <GlassCard id="lucid-mirage-status" className="min-h-[330px] overflow-hidden p-[38px]">
-      <div className="relative z-10 max-w-[54%]">
+      <div className="relative z-10 max-w-[57%]">
         <div className="font-serif text-[36px] leading-[1.08] text-[#fff1d7]">
           Your latest composition finished generating overnight.
         </div>
@@ -229,25 +331,75 @@ function KofiCompositionCard() {
         src={KOFI_LUCID_MIRAGE_COVER}
         alt=""
         aria-hidden
-        className="pointer-events-none absolute bottom-[-24%] right-[-10%] h-[126%] w-auto max-w-none select-none"
+        className="pointer-events-none absolute bottom-[-20%] right-[-15%] h-[120%] w-auto max-w-none select-none"
         style={{ filter: 'brightness(0.88) contrast(1.08) saturate(0.98) drop-shadow(0 26px 30px rgba(0,0,0,0.4))' }}
       />
     </GlassCard>
   );
 }
 
-function KofiProgressCard() {
+function FeedbackWaveform() {
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [playing, setPlaying] = useState(false);
+
+  const playFeedback = () => {
+    if (!audioRef.current) {
+      audioRef.current = new Audio(AMARA_FEEDBACK_AUDIO);
+      audioRef.current.addEventListener('ended', () => setPlaying(false));
+    }
+
+    audioRef.current.currentTime = 0;
+    setPlaying(true);
+    void audioRef.current.play().catch(() => setPlaying(false));
+  };
+
   return (
-    <GlassCard id="lucid-mirage-progress" className="min-h-[330px] p-[30px]">
-      <div className="font-serif text-[26px] text-[#fff1d7]">Version 07</div>
-      <div className="mt-5 font-serif text-[86px] leading-[0.82] tracking-normal text-[#fff1d7]">82%</div>
-      <div className="mt-5 text-[17px] text-[#fff4df]/88">Complete</div>
-      <div className="my-7 h-px w-full bg-[#f4dec0]/20" />
-      <div className="max-w-[16ch] text-[17px] leading-snug text-[#fff4df]/86">
-        Final Arrangement
+    <button
+      className={`mt-[9px] flex h-[36px] w-full items-center gap-[10px] rounded-full bg-[#3f3428]/32 px-[13px] text-[#fff4df]/84 backdrop-blur-md transition hover:bg-[#3f3428]/38 ${playing ? 'bg-[#3f3428]/42' : ''}`}
+      style={{ boxShadow: 'inset 0 0 0 1px rgba(255,238,205,0.035), inset 0 1px 12px rgba(0,0,0,0.08)' }}
+      type="button"
+      aria-label="Play Amara voice message"
+      onClick={playFeedback}
+    >
+      <svg viewBox="0 0 18 18" className="h-[16px] w-[16px] shrink-0 fill-current text-[#fff1d7]/88" aria-hidden="true">
+        <path d="M5.8 3.6 14 9l-8.2 5.4V3.6Z" />
+      </svg>
+      <div className="flex h-[25px] flex-1 items-center justify-center gap-[3px]" aria-hidden="true">
+        {[7, 13, 19, 25, 17, 22, 12, 18, 24, 15, 21, 11, 17, 23, 14, 20, 10, 16, 22, 12, 8].map((height, index) => (
+          <span key={`${height}-${index}`} className="w-[2px] rounded-full bg-[#fff1d7]/90" style={{ height }} />
+        ))}
       </div>
-      <div className="mt-2 text-[17px] leading-snug text-[#fff4df]/68">
-        Pending
+      <div className="shrink-0 text-[15px] leading-none text-[#fff4df]/78">0:18</div>
+    </button>
+  );
+}
+
+function FamilyFeedbackCard() {
+  return (
+    <GlassCard id="kofi-feedback" className="min-h-[330px] p-[28px]">
+      <div className="font-serif text-[30px] leading-none text-[#fff1d7]">Family Feedback</div>
+      <div className="mt-[18px] grid">
+        {kofiFeedbackItems.map((item, index) => (
+          <div
+            key={item.name}
+            className={`grid grid-cols-[56px_minmax(0,1fr)] gap-[15px] py-[14px] first:pt-0 ${
+              index === kofiFeedbackItems.length - 1 ? 'pb-0' : 'border-b border-[#f4dec0]/10'
+            }`}
+          >
+            <PersonAvatar src={item.image} name={item.name} />
+            <div className="min-w-0">
+              <div className="flex items-start justify-between gap-3">
+                <div className="font-serif text-[22px] leading-none text-[#fff4df]">{item.name}</div>
+                <div className="shrink-0 pt-[2px] text-[13px] leading-none text-[#fff4df]/52">{item.time}</div>
+              </div>
+              {item.type === 'audio' ? (
+                <FeedbackWaveform />
+              ) : (
+                <div className="mt-[6px] text-[16px] leading-snug text-[#fff4df]/82">{item.message}</div>
+              )}
+            </div>
+          </div>
+        ))}
       </div>
     </GlassCard>
   );
@@ -336,12 +488,12 @@ function KofiCards({ onOpenSpatialMix }: { onOpenSpatialMix: () => void }) {
           <div className="whitespace-nowrap font-serif text-[40px] leading-none">Welcome back,</div>
           <div className="mt-3 whitespace-nowrap font-serif text-[88px] leading-[0.84] tracking-normal">Kofi</div>
         </div>
-        <AgendaCard title="Today's Sessions" items={kofiSessionItems} itemGapClassName="gap-[32px]" />
+        <SharedWithCard />
       </section>
 
-      <section className="grid grid-cols-[minmax(0,1fr)_270px] gap-[24px]">
+      <section className="grid grid-cols-[minmax(0,1fr)_335px] gap-[24px]">
         <KofiCompositionCard />
-        <KofiProgressCard />
+        <FamilyFeedbackCard />
         <div className="col-span-2">
           <KofiSpatialMixPreviewCard onOpenSpatialMix={onOpenSpatialMix} />
         </div>
